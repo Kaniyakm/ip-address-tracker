@@ -2,9 +2,7 @@
 
 > A responsive IP Address Tracker built with pure **HTML5**, **CSS3**, and **vanilla JavaScript** — no frameworks, no build tools.
 
-![Desktop Preview](./preview-desktop.png)
 
----
 
 ## 📋 Table of Contents
 
