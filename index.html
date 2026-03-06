@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Track and locate any IP address or domain on an interactive map instantly."/>
+  <title>IP Address Tracker</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+  <!-- Google Fonts: Rubik -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet"/>
+
+  <!-- Project stylesheet -->
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ══ HEADER ══════════════════════════════════ -->
+  <header>
+    <h1>IP Address Tracker</h1>
+
+    <div class="search-wrap" id="search-wrap">
+      <div class="search-bar">
+        <input
+          id="search-input"
+          type="text"
+          placeholder="Search for any IP address or domain"
+          aria-label="IP address or domain to search"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button class="search-btn" id="search-btn" aria-label="Search">
+          <!-- Chevron right -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="14" viewBox="0 0 11 14" aria-hidden="true">
+            <path fill="none" stroke="#fff" stroke-width="3" d="M2 1l6 6-6 6"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Recent search history dropdown -->
+      <div class="history-dropdown" id="history-dropdown" role="listbox" aria-label="Recent searches">
+        <div class="history-hdr">Recent Searches</div>
+        <div id="history-list"></div>
+        <div class="history-clear" id="history-clear" role="button" tabindex="0">Clear history</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══ INFO CARD ════════════════════════════════ -->
+  <div id="info-card" role="region" aria-label="IP address information">
+
+    <div class="info-cell" id="cell-ip" data-copyable aria-label="IP Address — click to copy">
+      <div class="live-badge" aria-hidden="true"><span class="live-dot"></span>LIVE</div>
+      <div class="copy-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2"/>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+      </div>
+      <div class="info-label">IP Address</div>
+      <div class="info-value skeleton" id="val-ip">&nbsp;</div>
+    </div>
+
+    <div class="info-cell" id="cell-loc" data-copyable aria-label="Location — click to copy">
+      <div class="copy-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2"/>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+      </div>
+      <div class="info-label">Location</div>
+      <div class="info-value skeleton" id="val-loc">&nbsp;</div>
+    </div>
+
+    <div class="info-cell" id="cell-tz" aria-label="Timezone">
+      <div class="info-label">Timezone</div>
+      <div class="info-value skeleton" id="val-tz">&nbsp;</div>
+    </div>
+
+    <div class="info-cell" id="cell-isp" data-copyable aria-label="ISP — click to copy">
+      <div class="copy-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2"/>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+      </div>
+      <div class="info-label">ISP</div>
+      <div class="info-value skeleton" id="val-isp">&nbsp;</div>
+    </div>
+
+  </div><!-- /info-card -->
+
+  <!-- ══ MAP ══════════════════════════════════════ -->
+  <div id="map" role="application" aria-label="Map showing the location of the IP address"></div>
+
+  <!-- ══ MAP OVERLAY ACTIONS ══════════════════════ -->
+  <div class="map-actions" aria-label="Map actions">
+    <button class="map-pill" id="share-btn" aria-label="Share this location">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+      </svg>
+      Share
+    </button>
+    <button class="map-pill" id="locate-btn" aria-label="Detect my IP address">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="12" cy="12" r="3"/>
+        <circle cx="12" cy="12" r="8" stroke-opacity=".35"/>
+        <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+      </svg>
+      My IP
+    </button>
+  </div>
+
+</div><!-- /app -->
+
+<!-- Toast notification -->
+<div id="toast" role="alert" aria-live="assertive"></div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- Project script -->
+<script src="app.js"></script>
+
+</body>
+</html>
